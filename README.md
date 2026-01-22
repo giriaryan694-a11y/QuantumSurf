@@ -153,7 +153,7 @@ Playwright does **not** download browsers automatically.
 You must run:
 
 ```bash
-playwright install chromium
+python -m playwright install chromium
 ```
 
 If this step is skipped, the tool **will crash**.
