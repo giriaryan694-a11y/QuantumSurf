@@ -25,6 +25,12 @@ This creates a strong separation between **you** and **the web**.
 
 ---
 
+## Screenshots 
+![QuantumSurf Demo](screenshots/screenshot1.png)
+![QuantumSurf Demo](screenshots/screenshot2.png)
+
+---
+
 ## 🎥 Architecture Overview
 
 ```
