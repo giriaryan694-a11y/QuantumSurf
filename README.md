@@ -31,6 +31,17 @@ This creates a strong separation between **you** and **the web**.
 
 ---
 
+## ⚠️ Disclaimer
+
+QuantumSurf is intended for **educational, research, and defensive cybersecurity purposes only**.
+
+The developer does **not encourage, support, or condone** any illegal or unethical activities.  
+Users are solely responsible for how they use this software and must comply with all applicable laws, regulations, and service terms.
+
+The developer is **not responsible for any misuse** of this tool.
+
+---
+
 ## 🎥 Architecture Overview
 
 ```
