@@ -1,0 +1,6 @@
+Flask
+playwright
+playwright-stealth
+pyfiglet
+termcolor
+colorama
