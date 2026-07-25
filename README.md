@@ -1,213 +1,250 @@
-# 🌐 QuantumSurf
+# 🌊 QuantumSurf
 
-**Remote Browser Isolation • Privacy • Stealth Automation**
+> **Remote Browser Isolation (RBI) Privacy Toolkit**
+> **Direct CDP · Real Chrome · No Playwright · No Snap · Single File**
 
-> *“You are not browsing the web. You are watching it happen somewhere else.”*
-
-**QuantumSurf** is an advanced **Remote Browser Isolation (RBI)** tool that allows users to browse the internet **without executing any website code on their local machine**. All web execution happens on a remote server, while the client only receives a live visual stream and sends interaction coordinates.
-
-GitHub Repository: [https://github.com/giriaryan694-a11y/QuantumSurf/](https://github.com/giriaryan694-a11y/QuantumSurf/)
-
----
-
-## 🧠 What Is QuantumSurf?
-
-Modern websites aggressively track users, fingerprint browsers, and sometimes deliver malicious scripts. Traditionally, all of this code executes directly on your device.
-
-**QuantumSurf changes the model.**
-
-* Websites run inside an isolated Chromium browser on a server
-* Your system never executes untrusted JavaScript
-* You interact only with a streamed visual output
-* Mouse clicks and interactions are translated and executed server-side
-
-This creates a strong separation between **you** and **the web**.
+**Made by:** [Aryan Giri](https://github.com/giriaryan694-a11y)
+**Repository:** [QuantumSurf](https://github.com/giriaryan694-a11y/QuantumSurf)
+**Version:** Development
 
 ---
 
-## Screenshots 
-![QuantumSurf Demo](screenshots/screenshot1.png)
-![QuantumSurf Demo](screenshots/screenshot2.png)
+## 🛡️ Disclaimer
+
+QuantumSurf is intended for **authorized security research, red teaming, privacy testing, and educational use only**.
+Always ensure you have explicit permission before testing or interacting with any system.
+
+The author is not responsible for misuse, abuse, or any illegal activity.
 
 ---
 
-## ⚠️ Disclaimer
+## 🚀 What QuantumSurf Does
 
-QuantumSurf is intended for **educational, research, and defensive cybersecurity purposes only**.
+QuantumSurf is a **Remote Browser Isolation (RBI)** tool that runs a browser on a remote machine and streams only the visual output back to the client.
 
-The developer does **not encourage, support, or condone** any illegal or unethical activities.  
-Users are solely responsible for how they use this software and must comply with all applicable laws, regulations, and service terms.
+That means:
 
-The developer is **not responsible for any misuse** of this tool.
+* websites execute on the remote host, not on your local device
+* your local machine only receives screenshots / visual frames
+* user input is sent back to the remote browser
+* the browser can be controlled through **Chrome DevTools Protocol (CDP)**
+
+This makes QuantumSurf useful for:
+
+* privacy-focused browsing
+* browser isolation experiments
+* phishing / malvertising analysis
+* safe interaction with untrusted web content
+* automation and security research
 
 ---
 
-## 🎥 Architecture Overview
+## ✨ Features
 
+* **True Remote Browser Isolation**
+* **Direct CDP control**
+* **Real Chrome support**
+* **No Playwright dependency**
+* **No Snap / Flatpak required**
+* **Portable Chrome download and management**
+* **Stealth-oriented browser fingerprint masking**
+* **Virtual keyboard support**
+* **Desktop / mobile viewport switching**
+* **User-Agent spoofing**
+* **Source viewing and page download tools**
+* **Container-friendly**
+* **Works well in Google Cloud Shell, GitHub Codespaces, Docker, WSL, and VPS environments**
+
+---
+
+## 🔐 Default Login
+
+If authentication is enabled in your build, the default credentials are:
+
+* **Username:** `test`
+* **Password:** `test`
+
+You can change them by editing the `auth.txt` file in the project root.
+
+Example format:
+
+```text
+test:test
 ```
+
+---
+
+## 🖼️ Screenshots
+
+Add your screenshots here:
+
+<img width="1919" height="912" alt="Screenshot 2026-07-25 133151" src="https://github.com/user-attachments/assets/afd3daaa-267f-4b45-a3f8-fca82b472f9f" />
+<img width="924" height="821" alt="Screenshot 2026-07-25 133237" src="https://github.com/user-attachments/assets/200e3e60-5d14-43f4-b39b-8e8ba368f9e3" />
+
+You can replace or add more images later.
+
+---
+
+## 🧠 How It Works
+
+QuantumSurf follows a simple model:
+
+1. A browser runs on a remote server.
+2. The server captures the rendered page as screenshots.
+3. The screenshots are streamed to the client.
+4. Mouse and keyboard actions are translated into browser input events.
+5. The target site never runs on the local machine.
+
+---
+
+## 🏗️ Architecture
+
+```text
 [ User Browser ]
-      |
-      |  MJPEG Stream (Images Only)
-      |
-[ Flask Server ]  <-- Command Queue -->  [ Browser Worker Thread ]
-                                              |
-                                              |
-                                     [ Playwright + Chromium ]
+       |
+       |  Screenshot Stream / UI
+       v
+[ Flask Server ]  <---->  [ CDP Worker ]
+                               |
+                               v
+                        [ Real Chrome ]
 ```
 
-**Key Idea:** Isolation by design — pixels go to the user, execution stays on the server.
+### Core idea
+
+* **Flask** handles the web UI and requests
+* a **CDP worker** manages Chrome
+* Chrome renders the page remotely
+* the frontend displays the live stream and sends input events back
 
 ---
 
-## ⚙️ How It Works (Technical Breakdown)
+## 📋 Prerequisites
 
-### 🔹 Thread-Safe Browser Control
-
-Playwright is single-threaded and blocking. To avoid server lockups:
-
-* Flask handles HTTP requests
-* A dedicated **Browser Worker thread** controls Playwright
-* Commands are passed through a **thread-safe queue**
-
-Flask never talks to the browser directly.
+* **Linux / Ubuntu / Debian / WSL2 / macOS**
+* **Python 3.8+**
+* **Outbound internet access**
+* **Chrome-compatible environment**
 
 ---
 
-### 🔹 MJPEG Live Streaming
+## ⚙️ Installation
 
-Instead of heavy video codecs:
-
-* The server captures screenshots ~20 times per second
-* Each frame is sent as a JPEG
-* Streaming uses `multipart/x-mixed-replace`
-
-This provides:
-
-* Low latency
-* Simplicity
-* Compatibility with most networks
-
----
-
-### 🔹 Real-Time Interaction Mapping
-
-* Client captures mouse clicks on the video feed
-* JavaScript calculates scaled X/Y coordinates
-* Coordinates are sent back to the server
-* The worker simulates **real mouse events** in Chromium
-
-This enables smooth, near-real-time interaction.
-
----
-
-## 🕵️ Stealth & Evasion
-
-QuantumSurf includes stealth techniques to avoid automated browser detection:
-
-* Removes `AutomationControlled` flags
-* Injects JavaScript overrides
-* Spoofs a real Windows 10 User-Agent
-* Mimics human-driven browser behavior
-
-Useful for bot-detection research and defensive analysis.
-
----
-
-## 📱 Identity & Device Control
-
-Using the built-in configuration system, users can:
-
-* Change User-Agent strings
-* Inject cookies (JSON format)
-* Instantly load authenticated sessions
-* Toggle **Mobile View**, rebuilding the browser context to emulate a smartphone with touch events
-
----
-
-## ⭐ Major Advantage: Run It on Google Cloud Shell
-
-One of QuantumSurf’s strongest advantages is that it can run **entirely inside Google Cloud Shell**.
-
-### Why This Is Powerful
-
-* Free temporary Linux VM provided by Google
-* No local installation required
-* Fresh environment every session
-* Runs in Google’s infrastructure
-* Ideal for privacy and isolation research
-
-### Recommended Setup
-
-* **Terminal Tab 1:** Run QuantumSurf server
-* **Terminal Tab 2:** Run a tunneling service (Cloudflared or Ngrok)
-
-This allows you to securely access QuantumSurf from anywhere on the internet.
-
----
-
-## 🚀 Installation & Usage
-
-### 1️⃣ Clone the Repository
+### 1) Clone the repository
 
 ```bash
 git clone https://github.com/giriaryan694-a11y/QuantumSurf.git
 cd QuantumSurf
 ```
 
----
+### 2) Install system dependencies
 
-### 2️⃣ Install Python Dependencies
+On Linux, Chrome needs shared libraries for rendering and audio support.
+If these are missing, Chrome may fail to start or show a blank screen.
 
 ```bash
+sudo apt-get update && sudo apt-get install -y \
+  libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
+  libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 \
+  libxrandr2 libgbm1 libasound2t64 libpango-1.0-0 libcairo2 \
+  libxshmfence1 libx11-xcb1 libxcb-dri3-0
+```
+
+> On older Ubuntu versions, `libasound2` may be used instead of `libasound2t64`.
+
+### 3) Install Python dependencies
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
----
-
-### 3️⃣ Install Browser Binaries (CRUCIAL)
-
-Playwright does **not** download browsers automatically.
-You must run:
+### 4) Start QuantumSurf
 
 ```bash
-python -m playwright install chromium
+python3 main.py
 ```
-
-If this step is skipped, the tool **will crash**.
 
 ---
 
-### 4️⃣ Run QuantumSurf
+## 🎮 Usage
+
+Once the server is running, open the local web interface in your browser.
+
+```text
+http://localhost:8000
+```
+
+### Default login
+
+* **Username:** `test`
+* **Password:** `test`
+
+To change credentials, edit the `auth.txt` file in the project root.
+
+---
+
+## 🔧 Debugging
+
+If Chrome does not start, the screen is blank, or the page freezes, try running in debug mode.
 
 ```bash
-python main.py
+pkill -9 -f "chrome" 2>/dev/null; sleep 1
+QS_DEBUG=1 python3 main.py
 ```
 
-The server will start listening on the configured port.
+### Useful debug signals
+
+* `Chrome exited (code X)` → Chrome crashed
+* `error while loading shared libraries` → missing system dependency
+* `Handshake status 403` → CDP WebSocket origin issue
+* blank screen after launch → often a Chrome startup / library problem
 
 ---
 
-## 🌍 Exposing QuantumSurf to the Internet (Optional)
+## 🛠️ Troubleshooting
 
-### 🔹 Cloudflared (Recommended)
+### Blank screen after loading
 
-Download and install:
-[https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/downloads/)
+Usually means Chrome crashed or a required shared library is missing.
+Reinstall the system dependencies and rerun with `QS_DEBUG=1`.
 
-Run:
+### Port 9222 already in use
+
+An old Chrome process may still be alive.
+
+```bash
+pkill -9 -f "chrome"
+```
+
+### Wrong websocket package installed
+
+Use `websocket-client`, not `websocket`.
+
+```bash
+pip uninstall websocket -y
+pip install websocket-client
+```
+
+### Laggy stream
+
+This can happen in low-CPU environments or containers with limited resources.
+Using a stronger machine or fewer background tasks may help.
+
+---
+
+## 🌍 Running Through a Tunnel
+
+To access QuantumSurf from outside your machine, you can expose the local server through a tunnel.
+
+### Cloudflared
 
 ```bash
 cloudflared tunnel --url http://localhost:8000
 ```
 
----
-
-### 🔹 Ngrok (Alternative)
-
-Download:
-[https://ngrok.com/download/](https://ngrok.com/download/)
-
-Run:
+### Ngrok
 
 ```bash
 ngrok http 8000
@@ -215,33 +252,70 @@ ngrok http 8000
 
 ---
 
-## 📚 References & Further Reading
+## ☁️ Easy Deployment Options
 
-* QuantumSurf Repository:
-  [https://github.com/giriaryan694-a11y/QuantumSurf/](https://github.com/giriaryan694-a11y/QuantumSurf/)
+QuantumSurf is especially handy in **free cloud environments** like:
 
-* Google Cloud Shell for Cybersecurity:
-  [https://github.com/giriaryan694-a11y/gcloud-for-cybersec](https://github.com/giriaryan694-a11y/gcloud-for-cybersec)
+* **Google Cloud Shell**
+* **GitHub Codespaces**
 
-* Google Cloud Shell Documentation:
-  [https://cloud.google.com/shell](https://cloud.google.com/shell)
+These are useful because they give you a quick Linux environment without local setup.
+You can run the server in one terminal and a tunnel in another terminal for remote access.
 
-* Remote Browser Isolation (Concept):
-  [https://en.wikipedia.org/wiki/Remote_browser_isolation](https://en.wikipedia.org/wiki/Remote_browser_isolation)
+---
 
-* Cloudflare Tunnel:
-  [https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/)
+## 🔐 Browser Control Features
+
+QuantumSurf supports browser-side controls such as:
+
+* changing the **User-Agent**
+* loading cookies
+* switching viewport profiles
+* mobile emulation
+* virtual key input
+* direct interaction with remote Chrome
+
+---
+
+## 📚 Project Notes
+
+QuantumSurf is not:
+
+* a VPN
+* a proxy
+* a traditional browser automation wrapper
+
+It is a **remote viewing and interaction layer** for web content.
+
+---
+
+## 🧩 Requirements
+
+Example dependencies:
+
+```txt
+flask
+pyfiglet
+termcolor
+colorama
+websocket-client
+psutil
+```
+
+---
+
+## 📜 License
+
+This project is intended for educational and authorized security research purposes.
 
 ---
 
 ## 🧬 Final Note
 
-QuantumSurf is not a proxy.
-It is not a VPN.
-It is not traditional automation.
+QuantumSurf is a **secure viewing glass** between you and the modern web.
 
-It is a **secure viewing glass** — an invisible window between you and the modern web.
+It keeps execution remote, keeps the client lightweight, and keeps the browser under direct control.
 
-**Built with Python. Powered by Playwright.**
+**Built with Python. Powered by Chrome.**
 
 **Made by Aryan Giri**
