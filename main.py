@@ -790,7 +790,7 @@ if __name__=="__main__":
     print(colored(f"  FPS    : {CDPWorker.ACTIVE_FPS} active / {CDPWorker.IDLE_FPS} idle","white"))
     print(colored(f"  Debug  : {'ON' if DEBUG_CDP else 'OFF (QS_DEBUG=1 to enable)'}","white"))
     print(colored("="*60+"\n","cyan"))
-    print(colored("[*] Default credentials: admin / admin","magenta"))
+    print(colored("[*] Default credentials is in auth.txt","magenta"))
     print(colored("[*] http://0.0.0.0:8000\n","green"))
     if not CHROME_BIN:
         print(colored("[!] FATAL: No working Chrome/Chromium!","red"))
