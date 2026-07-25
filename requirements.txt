@@ -1,6 +1,6 @@
-Flask
-playwright
-playwright-stealth
+flask
 pyfiglet
 termcolor
 colorama
+websocket-client
+psutil
