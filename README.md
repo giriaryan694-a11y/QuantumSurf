@@ -1,12 +1,11 @@
 # 🌊 QuantumSurf
 
 > **Remote Browser Isolation (RBI) Privacy Toolkit**
->
 > **Direct CDP · Real Chrome · No Playwright · No Snap · Single File**
 
-**Author:** [Aryan Giri](https://github.com/giriaryan694-a11y)  
-**Repository:** [QuantumSurf](https://github.com/giriaryan694-a11y/QuantumSurf)  
-**Version:** Development  
+**Author:** [Aryan Giri](https://github.com/giriaryan694-a11y)
+**Repository:** [QuantumSurf](https://github.com/giriaryan694-a11y/QuantumSurf)
+**Version:** Development
 **License:** Educational / Authorized Security Research Use Only
 
 ---
@@ -15,69 +14,70 @@
 
 **QuantumSurf is intended exclusively for authorized security research, red teaming, privacy testing, and educational purposes.**
 
-> ⚠️ **Always obtain explicit written permission before testing or interacting with any system you do not own.**
->
-> The author assumes no liability for misuse, abuse, or any illegal activity conducted with this tool. Users are solely responsible for ensuring compliance with all applicable laws and regulations in their jurisdiction.
+> ⚠️ Always obtain explicit permission before testing or interacting with any system you do not own.
+> The author assumes no liability for misuse, abuse, or illegal activity conducted with this tool.
 
 ---
 
 ## 🚀 What QuantumSurf Does
 
-QuantumSurf is a **Remote Browser Isolation (RBI)** tool that executes web content on a remote machine and streams only the visual output back to the client.
+QuantumSurf is a **Remote Browser Isolation (RBI)** tool that runs web content on a remote machine and streams only the visual output back to the client.
 
 ### Core Principle
 
-| Local Machine | Remote Server |
-|---------------|---------------|
+| Local Machine                             | Remote Server                                       |
+| ----------------------------------------- | --------------------------------------------------- |
 | Receives screenshots / visual frames only | Executes all web content (JavaScript, DOM, cookies) |
-| Sends mouse and keyboard input | Renders pages using real Chrome |
-| Never loads target site directly | Handles all network requests |
+| Sends mouse and keyboard input            | Renders pages using real Chrome                     |
+| Never loads target site directly          | Handles all network requests                        |
 
 ### Use Cases
 
-- 🔒 **Privacy-focused browsing** — isolate your identity from websites
-- 🧪 **Browser isolation experiments** — test sandboxing techniques
-- 🎣 **Phishing & malvertising analysis** — safely inspect suspicious content
-- 🛡️ **Safe interaction with untrusted web content** — analyze without exposure
-- 🤖 **Automation & security research** — controlled browser environments
+* **Privacy-focused browsing** — isolate your identity from websites
+* **Browser isolation experiments** — test sandboxing techniques
+* **Phishing & malvertising analysis** — inspect suspicious content safely
+* **Safe interaction with untrusted web content** — analyse without exposure
+* **Automation & security research** — controlled browser environments
 
 ---
 
 ## ✨ Features
 
-- ✅ **True Remote Browser Isolation** — full execution separation
-- ✅ **Direct CDP Control** — native Chrome DevTools Protocol, no abstraction layers
-- ✅ **Real Chrome Support** — uses official Chrome, not Chromium derivatives
-- ✅ **No Playwright Dependency** — lightweight, no heavy automation frameworks
-- ✅ **No Snap / Flatpak Required** — direct binary execution
-- ✅ **Portable Chrome Management** — automatic download and setup
-- ✅ **Stealth-Oriented Fingerprint Masking** — reduce detection footprint
-- ✅ **Virtual Keyboard Support** — type safely without local keylogging exposure
-- ✅ **Desktop / Mobile Viewport Switching** — responsive testing on demand
-- ✅ **User-Agent Spoofing** — mask browser identity
-- ✅ **Source Viewing & Page Download Tools** — inspect raw content
-- ✅ **Container-Friendly** — runs in Docker, WSL, cloud shells, and VPS environments
-- ✅ **Cloud-Ready** — tested on Google Cloud Shell and GitHub Codespaces
+* ✅ **True Remote Browser Isolation** — full execution separation
+* ✅ **Direct CDP Control** — native Chrome DevTools Protocol, no abstraction layers
+* ✅ **Real Chrome Support** — uses Chrome directly
+* ✅ **No Playwright Dependency** — lightweight and simple
+* ✅ **No Snap / Flatpak Required** — direct binary execution
+* ✅ **Portable Chrome Management** — automatic download and setup
+* ✅ **Stealth-Oriented Fingerprint Masking** — reduce detection footprint
+* ✅ **Virtual Keyboard Support** — type safely without local keylogging exposure
+* ✅ **Desktop / Mobile Viewport Switching** — responsive testing on demand
+* ✅ **User-Agent Spoofing** — mask browser identity
+* ✅ **Source Viewing & Page Download Tools** — inspect raw content
+* ✅ **Container-Friendly** — works in Docker, WSL, cloud shells, and VPS environments
+* ✅ **Cloud-Ready** — tested on GitHub Codespaces and Google Cloud Shell
 
 ---
 
 ## 🖼️ Screenshots
 
 ### Main Interface
-<img width="1919" height="912" alt="QuantumSurf Main Interface" src="https://github.com/user-attachments/assets/afd3daaa-267f-4b45-a3f8-fca82b472f9f" />
+
+![QuantumSurf Main Interface](https://github.com/user-attachments/assets/afd3daaa-267f-4b45-a3f8-fca82b472f9f)
 
 ### Terminal Viewport Mode
-<img width="924" height="821" alt="QuantumSurf Terminal Mode" src="https://github.com/user-attachments/assets/200e3e60-5d14-43f4-b39b-8e8ba368f9e3" />
 
-> Replace or add more screenshots in the `screenshots/` directory as needed.
+![QuantumSurf Terminal Mode](https://github.com/user-attachments/assets/200e3e60-5d14-43f4-b39b-8e8ba368f9e3)
+
+> Keep or replace these screenshots in the `screenshots/` directory as needed.
 
 ---
 
 ## 🧠 How It Works
 
-QuantumSurf operates on a simple but powerful model:
+QuantumSurf uses a simple browser-isolation flow:
 
-```
+```text
 ┌─────────────────┐      Screenshot Stream      ┌─────────────────┐
 │                 │◄────────────────────────────│                 │
 │  User Browser   │                             │  Flask Server   │
@@ -87,51 +87,49 @@ QuantumSurf operates on a simple but powerful model:
                                                          │
                                                          │ CDP Commands
                                                          ▼
-                                                  ┌───────────────┐
-                                                  │  CDP Worker   │
-                                                  │  (WebSocket)  │
-                                                  └───────┬───────┘
-                                                          │
-                                                          ▼
-                                                  ┌───────────────┐
-                                                  │  Real Chrome  │
-                                                  │  (Headless)   │
-                                                  └───────────────┘
+                                                   ┌───────────────┐
+                                                   │  CDP Worker   │
+                                                   │  (WebSocket)  │
+                                                   └───────┬───────┘
+                                                           │
+                                                           ▼
+                                                   ┌───────────────┐
+                                                   │  Real Chrome   │
+                                                   │  (Headless)    │
+                                                   └───────────────┘
 ```
 
 ### Architecture Breakdown
 
-| Component | Technology | Responsibility |
-|-----------|-----------|----------------|
-| Web UI | Flask (Python) | Serves frontend, handles HTTP requests, manages sessions |
-| CDP Worker | WebSocket Client | Translates user actions to Chrome DevTools Protocol commands |
-| Browser Engine | Google Chrome | Renders web pages, executes JavaScript, manages cookies |
+| Component      | Technology       | Responsibility                                               |
+| -------------- | ---------------- | ------------------------------------------------------------ |
+| Web UI         | Flask (Python)   | Serves frontend, handles HTTP requests, manages sessions     |
+| CDP Worker     | WebSocket Client | Translates user actions to Chrome DevTools Protocol commands |
+| Browser Engine | Google Chrome    | Renders web pages, executes JavaScript, manages cookies      |
 
 ### Data Flow
 
-1. **User** opens the web interface at `http://localhost:8000`
-2. **Flask Server** authenticates the user and serves the control UI
-3. **CDP Worker** launches Chrome with remote debugging enabled on port `9222`
-4. **Chrome** navigates to the target URL and renders the page
-5. **Screenshot Stream** captures frames and sends them to the client
-6. **User Input** (clicks, keystrokes) is forwarded to Chrome via CDP
-7. **Target Site** never executes on the local machine — only pixels are transmitted
+1. User opens the web interface at `http://localhost:8000`
+2. Flask authenticates the user and serves the control UI
+3. CDP Worker launches Chrome with remote debugging enabled on port `9222`
+4. Chrome navigates to the target URL and renders the page
+5. Screenshot stream captures frames and sends them to the client
+6. User input is forwarded to Chrome via CDP
+7. The target site never executes on the local machine — only pixels are transmitted
 
 ---
 
 ## 📋 Prerequisites
 
-Before installing, ensure your environment meets the following requirements:
+| Requirement          | Details                                                     |
+| -------------------- | ----------------------------------------------------------- |
+| Operating System     | Linux (Ubuntu/Debian), WSL2, macOS, or compatible container |
+| Python               | 3.8 or higher                                               |
+| Internet Access      | Required for Chrome download and browsing                   |
+| Memory               | Minimum 2 GB RAM recommended (4 GB+ for smoother streaming) |
+| Chrome Compatibility | GLIBC 2.31+ and required shared libraries                   |
 
-| Requirement | Details |
-|-------------|---------|
-| **Operating System** | Linux (Ubuntu/Debian), WSL2, macOS, or compatible container |
-| **Python** | Version 3.8 or higher |
-| **Internet Access** | Outbound connectivity for Chrome download and browsing |
-| **Memory** | Minimum 2GB RAM recommended (4GB+ for smooth streaming) |
-| **Chrome Compatibility** | GLIBC 2.31+ and required shared libraries (see Installation) |
-
-> **Note:** This tool has been primarily tested on **GitHub Codespaces** with a **4-core instance**. Performance may vary on lower-spec environments.
+> **Note:** This tool has been primarily tested on **GitHub Codespaces (Ubuntu)** with a **4-core instance**.
 
 ---
 
@@ -146,7 +144,7 @@ cd QuantumSurf
 
 ### Step 2: Install System Dependencies
 
-Chrome requires specific shared libraries for rendering, audio, and GPU acceleration. Missing libraries will cause Chrome to crash or display a blank screen.
+Chrome needs specific shared libraries for rendering, audio, and GPU acceleration. Missing libraries can cause crashes or a blank screen.
 
 **Ubuntu 22.04+ / Debian 12+:**
 
@@ -168,7 +166,7 @@ sudo apt-get update && sudo apt-get install -y \
   libxshmfence1 libx11-xcb1 libxcb-dri3-0
 ```
 
-> **Tip:** On Ubuntu 20.04 and earlier, use `libasound2` instead of `libasound2t64`.
+> Tip: On Ubuntu 20.04 and earlier, use `libasound2` instead of `libasound2t64`.
 
 ### Step 3: Set Up Python Environment
 
@@ -179,8 +177,6 @@ pip install -r requirements.txt
 ```
 
 ### Step 4: Fix Chrome Permissions (If Needed)
-
-If you encounter Chrome-related errors on first run, set the correct permissions:
 
 ```bash
 chmod +x /workspaces/QuantumSurf/.chrome/chrome-linux64/chrome_crashpad_handler
@@ -203,16 +199,16 @@ The server will start on `http://localhost:8000` by default.
 
 ### Access the Web Interface
 
-Open your browser and navigate to:
+Open your browser and go to:
 
-```
+```text
 http://localhost:8000
 ```
 
 ### Default Login Credentials
 
-| Field | Value |
-|-------|-------|
+| Field    | Value  |
+| -------- | ------ |
 | Username | `test` |
 | Password | `test` |
 
@@ -230,13 +226,90 @@ Format:
 test:test
 ```
 
-Replace with your desired `username:password` combination. Restart the server for changes to take effect.
+You can change the credentials at any time by editing `auth.txt` and restarting the server.
+
+> If `auth.txt` is missing, QuantumSurf falls back to the default `test:test` login.
+
+---
+
+## 🔐 Authentication Options
+
+QuantumSurf supports simple local authentication through `auth.txt`.
+
+### Built-in Auth File
+
+* One credential pair per line
+* Format: `username:password`
+* Restart the server after changes
+
+### Optional Layer: SessionGuard
+
+For stronger control around local web tools, you can place QuantumSurf behind **SessionGuard**.
+
+**SessionGuard** is a secure HTTP authentication gateway and session enforcement shield for local web tools.
+
+It sits in front of your app, handles authentication, enforces per-user concurrent session limits, and forwards only approved traffic to your backend service.
+
+**Flow:**
+
+```text
+client ──► cloudflared ──► SessionGuard :8000 ──► local tool (127.0.0.1:PORT)
+```
+
+Use it when you want:
+
+* per-user session control
+* a web admin panel
+* a cleaner gateway in front of private tools
+
+Repository: [SessionGuard](https://github.com/giriaryan694-a11y/SessionGuard)
+
+### Optional HTTPS Layer: http2https
+
+If a browser or client expects HTTPS, you can put **http2https** in front of an HTTP-only local service.
+
+**http2https** is a Python-based CLI tool that lets you access an HTTP-only local service through HTTPS.
+
+Example flow:
+
+```text
+HTTP server:   localhost:8000
+HTTPS proxy:   localhost:8080
+```
+
+So instead of opening:
+
+```text
+http://IP:8000
+```
+
+you open:
+
+```text
+https://IP:8080
+```
+
+Repository: [http2https](https://github.com/giriaryan694-a11y/http2https)
+
+---
+
+## 🧭 Tested Environments
+
+| Environment        | Notes                                   | Status       |
+| ------------------ | --------------------------------------- | ------------ |
+| GitHub Codespaces  | Ubuntu / 4-core instance                | ✅ Tested     |
+| Ubuntu             | Standard Linux desktop/server           | ✅ Tested     |
+| TermuxCodeSpace    | Termux-based isolated Ubuntu codespaces | ✅ Tested     |
+| Google Cloud Shell | Works with dependency updates           | ✅ Tested     |
+| Kali Linux         | Useful for lab usage                    | ✅ Compatible |
+
+TermuxCodeSpace repository: [TermuxCodeSpace](https://github.com/giriaryan694-a11y/TermuxCodeSpace)
 
 ---
 
 ## 🔧 Debugging
 
-If Chrome fails to start, the screen remains blank, or the page freezes, enable debug mode:
+If Chrome fails to start, the screen stays blank, or the page freezes, enable debug mode:
 
 ```bash
 # Kill any existing Chrome processes
@@ -249,13 +322,13 @@ QS_DEBUG=1 python3 main.py
 
 ### Common Debug Signals
 
-| Error Message | Meaning | Solution |
-|---------------|---------|----------|
-| `Chrome exited (code X)` | Chrome crashed unexpectedly | Check missing libraries with `ldd` |
-| `error while loading shared libraries` | Missing system dependency | Reinstall system dependencies (Step 2) |
-| `Handshake status 403` | CDP WebSocket origin rejected | Check firewall / proxy settings |
-| Blank screen after launch | Chrome startup failure | Run `QS_DEBUG=1` and check logs |
-| `Port 9222 already in use` | Zombie Chrome process | Run `pkill -9 -f "chrome"` |
+| Error Message                          | Meaning                       | Solution                           |
+| -------------------------------------- | ----------------------------- | ---------------------------------- |
+| `Chrome exited (code X)`               | Chrome crashed unexpectedly   | Check missing libraries with `ldd` |
+| `error while loading shared libraries` | Missing system dependency     | Reinstall system dependencies      |
+| `Handshake status 403`                 | CDP WebSocket origin rejected | Check firewall / proxy settings    |
+| Blank screen after launch              | Chrome startup failure        | Run `QS_DEBUG=1` and check logs    |
+| `Port 9222 already in use`             | Zombie Chrome process         | Run `pkill -9 -f "chrome"`         |
 
 ---
 
@@ -266,8 +339,9 @@ QS_DEBUG=1 python3 main.py
 **Cause:** Chrome crashed or a required shared library is missing.
 
 **Solution:**
-1. Reinstall system dependencies (see Installation Step 2)
-2. Run with `QS_DEBUG=1` to identify the exact error
+
+1. Reinstall system dependencies
+2. Run with `QS_DEBUG=1`
 3. Verify Chrome binary permissions are executable
 
 ### Port 9222 Already in Use
@@ -275,6 +349,7 @@ QS_DEBUG=1 python3 main.py
 **Cause:** A previous Chrome process is still running.
 
 **Solution:**
+
 ```bash
 pkill -9 -f "chrome"
 ```
@@ -284,6 +359,7 @@ pkill -9 -f "chrome"
 **Cause:** The `websocket` package conflicts with `websocket-client`.
 
 **Solution:**
+
 ```bash
 pip uninstall websocket -y
 pip install websocket-client
@@ -294,16 +370,18 @@ pip install websocket-client
 **Cause:** Insufficient CPU or memory allocation.
 
 **Solutions:**
-- Upgrade to a machine with more resources (4+ cores recommended)
-- Close unnecessary background applications
-- Reduce browser viewport size in settings
-- Lower screenshot capture frequency if configurable
+
+* Use a machine with more resources
+* Close unnecessary background applications
+* Reduce browser viewport size
+* Lower screenshot capture frequency if configurable
 
 ### Chrome Permission Denied
 
 **Cause:** Chrome binaries lack execute permissions.
 
 **Solution:**
+
 ```bash
 chmod +x /workspaces/QuantumSurf/.chrome/chrome-linux64/chrome
 chmod +x /workspaces/QuantumSurf/.chrome/chrome-linux64/chrome_crashpad_handler
@@ -311,7 +389,7 @@ chmod +x /workspaces/QuantumSurf/.chrome/chrome-linux64/chrome_crashpad_handler
 
 ---
 
-## 🌍 Remote Access & Tunneling
+## 🌍 Remote Access & Tunnelling
 
 To access QuantumSurf from outside your local machine, use a secure tunnel.
 
@@ -333,46 +411,7 @@ ngrok http 8000
 npx localtunnel --port 8000
 ```
 
-> **Security Warning:** When exposing via tunnel, ensure strong credentials are set in `auth.txt`. Do not use default credentials in production or public-facing deployments.
-
----
-
-## ☁️ Cloud Deployment
-
-QuantumSurf is optimized for free cloud development environments:
-
-| Platform | Notes |
-|----------|-------|
-| **GitHub Codespaces** | Primary test environment; 4-core recommended |
-| **Google Cloud Shell** | Pre-installed dependencies; may need library updates |
-| **Gitpod** | Works with standard Ubuntu image |
-| **Docker / VPS** | Use official Ubuntu/Debian base images |
-| **WSL2** | Enable systemd if using WSL on Windows 11 |
-
-### Codespaces Quick Start
-
-1. Open the repository in GitHub Codespaces (4-core instance)
-2. Run system dependency installation (Step 2)
-3. Set up Python environment (Step 3)
-4. Fix Chrome permissions (Step 4)
-5. Start the server and open the forwarded port
-
----
-
-## 🔐 Browser Control Features
-
-QuantumSurf provides direct browser manipulation through the web UI:
-
-| Feature | Description |
-|---------|-------------|
-| **User-Agent Spoofing** | Override browser identification string |
-| **Cookie Management** | Load, edit, or clear cookies for sessions |
-| **Viewport Profiles** | Switch between desktop, tablet, and mobile resolutions |
-| **Mobile Emulation** | Enable touch events and device-specific behavior |
-| **Virtual Keyboard** | Input text without local keyboard event exposure |
-| **Direct CDP Interaction** | Send raw Chrome DevTools Protocol commands |
-| **Page Source View** | Inspect raw HTML/JS before rendering |
-| **Download Page Content** | Save full page source for offline analysis |
+> Security note: when exposing via tunnel, always set strong credentials in `auth.txt`. Do not use defaults in public deployments.
 
 ---
 
@@ -380,25 +419,25 @@ QuantumSurf provides direct browser manipulation through the web UI:
 
 ### What QuantumSurf Is
 
-- A **remote viewing and interaction layer** for web content
-- A **browser isolation experiment** for privacy research
-- A **security analysis tool** for controlled web interaction
+* A **remote viewing and interaction layer** for web content
+* A **browser isolation experiment** for privacy research
+* A **security analysis tool** for controlled web interaction
 
-### What QuantumSurf Is NOT
+### What QuantumSurf Is Not
 
-- ❌ A VPN — does not encrypt all traffic, only isolates browser execution
-- ❌ A Proxy — does not route all system traffic, only browser content
-- ❌ A Traditional Browser Automation Wrapper — no Playwright, Selenium, or Puppeteer abstraction
+* A VPN
+* A proxy for all system traffic
+* A traditional browser automation wrapper
 
 ### Security Model
 
-QuantumSurf assumes the **remote server is trusted** and the **client is potentially untrusted** (or vice versa for privacy). All web execution happens server-side; the client only receives visual frames.
+QuantumSurf assumes the **remote server is trusted** and the **client is potentially untrusted**. All web execution happens server-side; the client only receives visual frames.
 
 ---
 
 ## 📦 Requirements
 
-Core dependencies (see `requirements.txt` for full list):
+Core dependencies:
 
 ```text
 flask>=2.0.0
@@ -409,7 +448,7 @@ websocket-client>=1.0.0
 psutil>=5.8.0
 ```
 
-Install all dependencies:
+Install them with:
 
 ```bash
 pip install -r requirements.txt
@@ -422,12 +461,12 @@ pip install -r requirements.txt
 Contributions are welcome for educational and security research purposes.
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
 5. Open a Pull Request
 
-Please ensure all contributions comply with the project's intended use case and include appropriate documentation.
+Please keep contributions aligned with the project’s intended use case and include documentation where needed.
 
 ---
 
@@ -436,11 +475,10 @@ Please ensure all contributions comply with the project's intended use case and 
 This project is provided for **educational and authorized security research purposes only**.
 
 By using this software, you agree to:
-- Use it only on systems you own or have explicit permission to test
-- Not use it for any illegal, unethical, or unauthorized activities
-- Assume full responsibility for your actions
 
-The author disclaims all liability for misuse or damage arising from the use of this software.
+* Use it only on systems you own or have explicit permission to test
+* Not use it for illegal, unethical, or unauthorized activities
+* Assume full responsibility for your actions
 
 ---
 
@@ -455,5 +493,3 @@ It keeps execution remote, the client lightweight, and the browser under your di
 ---
 
 **Made by [Aryan Giri](https://github.com/giriaryan694-a11y)**
-
-⭐ Star this repository if you find it useful for your research!
