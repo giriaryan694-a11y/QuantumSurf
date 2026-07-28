@@ -64,7 +64,7 @@ Xvfb :99 → Chromium (headed, full native UI)
 ```bash
 sudo apt-get update
 sudo apt-get install -y python3 python3-pip x11-utils
-pip3 install flask pyfiglet termcolor colorama
+pip3 install flask pyfiglet termcolor colorama flask-sock
 ```
 
 ### 2. Run
@@ -195,7 +195,7 @@ These are not auto-installed.
 
 ```bash
 sudo apt-get update && sudo apt-get install -y python3 python3-pip x11-utils && \
-pip3 install flask pyfiglet termcolor colorama
+pip3 install flask pyfiglet termcolor colorama flask-sock
 ```
 
 ---
