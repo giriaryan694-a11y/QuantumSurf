@@ -4,3 +4,4 @@ termcolor
 colorama
 websocket-client
 psutil
+flask-sock
