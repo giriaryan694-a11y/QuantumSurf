@@ -6,26 +6,34 @@ GitHub: https://github.com/giriaryan694-a11y
 
 Architecture:
   Xvfb :99 → Chromium (HEADED, fills entire screen)
-  x11vnc → mirrors :99 on 127.0.0.1:5901
-  websockify → proxies WebSocket :6080 → VNC :5901, serves noVNC
-  Flask :8000 → auth gate + resolution API + iframe to noVNC
+  x11vnc → mirrors :99 on 127.0.0.1:5901 (LOOPBACK ONLY)
+  Flask :8000 (0.0.0.0) → auth gate + resolution API + serves noVNC UI
+                          + WebSocket<->RFB bridge to 127.0.0.1:5901
 
 FIXED: Stale Xvfb lock file /tmp/.X99-lock cleanup before start
 FIXED: -listen tcp for Xvfb 21.1+ compatibility
 """
 import os, re, json, time, html, hmac, hashlib, secrets, base64, tempfile, sys
-import threading, shutil, subprocess, multiprocessing, signal, io, tarfile
+import threading, shutil, subprocess, multiprocessing, signal, io, tarfile, socket
 import urllib.request, zipfile, platform, ctypes.util
 from pathlib import Path
 from functools import wraps
 from datetime import timedelta
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlencode
 from flask import (Flask, request, Response, jsonify, session, redirect,
-                   url_for, render_template_string, abort, make_response)
+                   url_for, render_template_string, abort, make_response,
+                   send_from_directory)
 import pyfiglet
 from termcolor import colored
 from colorama import init as colorama_init
 colorama_init(autoreset=True)
+
+try:
+    from flask_sock import Sock
+except ImportError:
+    print(colored("[!] flask-sock is required for the secure VNC bridge.", "red"))
+    print(colored("    Install it with:  pip install flask-sock", "yellow"))
+    sys.exit(1)
 
 # ═══════════════════════════════════════════════════════════
 # CONFIG
@@ -45,9 +53,9 @@ NOVNC_DIR = BASE / ".novnc"
 
 XVFB_DISPLAY = ":99"
 XVFB_DISPLAY_NUM = 99  # Numeric part for lock file paths
-VNC_PORT = 5901
-NOVNC_PORT = 6080
-FLASK_PORT = 8000
+VNC_PORT = 5901       # x11vnc — 127.0.0.1 ONLY, never exposed
+NOVNC_PORT = 6080     # kept as a constant for reference only; nothing binds to it anymore
+FLASK_PORT = 8000     # the only port that listens on 0.0.0.0
 
 CURRENT_W = 1920
 CURRENT_H = 1080
@@ -543,6 +551,8 @@ def _start_xvfb(w, h):
         return False
 
 def _start_x11vnc():
+    """Start x11vnc bound strictly to 127.0.0.1 (the -localhost flag below
+    already ensures this — it is NOT reachable from other machines)."""
     if not shutil.which("x11vnc"):
         _log("x11vnc not found, installing...", "WARN")
         _install_pkg("x11vnc")
@@ -581,14 +591,15 @@ def _start_x11vnc():
     return False
 
 def _start_novnc():
+    """Locate (or download) the noVNC static web assets only.
+
+    NOTE: This used to also spawn `websockify` bound to 0.0.0.0:6080,
+    which is what gave unauthenticated network clients a direct path to
+    the VNC session. That network listener has been removed entirely —
+    the WebSocket<->RFB bridge is now handled inside Flask at /ws,
+    guarded by @login_required, and it connects only to 127.0.0.1:5901.
+    """
     global NOVNC_WEB_ROOT, NOVNC_ENTRY
-    if not shutil.which("websockify"):
-        _log("websockify not found, installing via pip...", "WARN")
-        try:
-            subprocess.run([sys.executable,"-m","pip","install","websockify","-q"],
-                         timeout=30, capture_output=True)
-        except: pass
-        if not shutil.which("websockify"): _install_pkg("websockify")
     novnc_web = None
     for p in ["/usr/share/novnc","/usr/share/noVNC","/opt/novnc"]:
         if Path(p).is_dir() and (Path(p)/"vnc.html").exists(): novnc_web = p; break
@@ -613,23 +624,8 @@ def _start_novnc():
         _log("noVNC files not found", "ERROR")
         return False
     NOVNC_WEB_ROOT = novnc_web; NOVNC_ENTRY = "vnc.html"
-    subprocess.run(["pkill","-f",f"websockify.*{NOVNC_PORT}"], capture_output=True, timeout=3)
-    time.sleep(0.3)
-    ws_bin = shutil.which("websockify") or f"{sys.executable} -m websockify"
-    try:
-        cmd = f"{ws_bin} --web={novnc_web} 0.0.0.0:{NOVNC_PORT} 127.0.0.1:{VNC_PORT}"
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        time.sleep(1.5)
-        if p.poll() is not None:
-            _, err = p.communicate(timeout=3)
-            _log(f"websockify exited: {err.decode(errors='replace')[:300]}", "ERROR")
-            return False
-        PROCS["websockify"] = p
-        _log(f"noVNC/websockify on 0.0.0.0:{NOVNC_PORT}")
-        return True
-    except Exception as e:
-        _log(f"websockify exception: {e}", "ERROR")
-        return False
+    _log(f"noVNC static files ready at {novnc_web} (served via Flask /novnc/, no network listener)")
+    return True
 
 def _launch_chromium(w, h):
     if not CHROME_BIN:
@@ -740,7 +736,7 @@ def _start_full_stack(w=None, h=None):
         if STACK_OK: _log(f"Stack OK at {w}x{h}")
         else:
             if not vnc_ok: _log("Stack partial: x11vnc failed", "ERROR")
-            if not novnc_ok: _log("Stack partial: noVNC/websockify failed", "ERROR")
+            if not novnc_ok: _log("Stack partial: noVNC files unavailable", "ERROR")
         return STACK_OK
 
 def _restart_stack(w, h):
@@ -799,6 +795,7 @@ app.secret_key = SECRET_KEY
 app.permanent_session_lifetime = SESSION_LIFE
 app.config.update(SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax",
                   SESSION_COOKIE_SECURE=False, MAX_CONTENT_LENGTH=MAX_BODY)
+sock = Sock(app)
 
 def _security_headers(r):
     r.headers.update({"X-Content-Type-Options":"nosniff","X-XSS-Protection":"1; mode=block",
@@ -988,10 +985,24 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:'Co
 @app.route("/")
 @login_required
 def index():
-    host = _get_client_host()
-    novnc_url = (f"http://{host}:{NOVNC_PORT}/{NOVNC_ENTRY}"
-                 f"?autoconnect=true&resize=scale&view_clip=1"
-                 f"&show_dot=true&reconnect=true&reconnect_delay=2000&bell=off")
+    # noVNC silently PREFIXES a relative `path` value with the directory
+    # it's served from (here, /novnc/), so path=ws was actually being
+    # requested as /novnc/ws — which doesn't exist. Passing a full
+    # absolute ws:// URL instead sidesteps that prefixing entirely.
+    # Ref: https://github.com/novnc/noVNC/pull/1058
+    scheme = "wss" if request.is_secure else "ws"
+    ws_abs_url = f"{scheme}://{request.host}/ws"
+    query = urlencode({
+        "autoconnect": "true",
+        "resize": "scale",
+        "view_clip": "1",
+        "show_dot": "true",
+        "reconnect": "true",
+        "reconnect_delay": "2000",
+        "bell": "off",
+        "path": ws_abs_url,
+    })
+    novnc_url = f"/novnc/{NOVNC_ENTRY}?{query}"
     return render_template_string(APP_HTML, novnc_url=novnc_url, novnc_port=NOVNC_PORT)
 
 @app.route("/login", methods=["GET"])
@@ -1027,6 +1038,68 @@ def login_post():
 def logout():
     session.clear()
     return redirect(url_for("login_page"))
+
+@app.route("/novnc/<path:filename>")
+@login_required
+def novnc_static(filename):
+    """Serve the noVNC web client's static files. This replaces websockify's
+    old built-in web server, which used to also listen on 0.0.0.0:6080."""
+    if not NOVNC_WEB_ROOT:
+        abort(404)
+    return send_from_directory(NOVNC_WEB_ROOT, filename)
+
+@sock.route("/ws")
+def ws_vnc_bridge(ws):
+    """WebSocket <-> raw-RFB bridge, replacing websockify's network listener.
+
+    Only reachable through Flask on 0.0.0.0:FLASK_PORT, and only after a
+    valid login session — this is the sole path from the network to the
+    VNC session. Internally it connects only to 127.0.0.1:VNC_PORT.
+    """
+    if not session.get("authenticated"):
+        try: ws.close()
+        except Exception: pass
+        return
+
+    try:
+        vnc_sock = socket.create_connection(("127.0.0.1", VNC_PORT), timeout=5)
+        vnc_sock.setblocking(False)
+    except Exception as e:
+        _log(f"ws_vnc_bridge: cannot reach 127.0.0.1:{VNC_PORT}: {e}", "ERROR")
+        try: ws.close()
+        except Exception: pass
+        return
+
+    _log(f"ws_vnc_bridge: connected to 127.0.0.1:{VNC_PORT}, bridging")
+
+    # Single-threaded, select()-based multiplexer — avoids any concurrency
+    # issues from calling ws.send()/ws.receive() on two different threads.
+    try:
+        import select as _select
+        while True:
+            readable, _, _ = _select.select([vnc_sock], [], [], 0.02)
+            if vnc_sock in readable:
+                try:
+                    data = vnc_sock.recv(65536)
+                except BlockingIOError:
+                    data = None
+                if data == b"":
+                    _log("ws_vnc_bridge: VNC side closed connection", "WARN")
+                    break
+                if data:
+                    ws.send(data)
+
+            msg = ws.receive(timeout=0.02)
+            if msg is not None:
+                if isinstance(msg, str):
+                    msg = msg.encode("utf-8", "ignore")
+                vnc_sock.sendall(msg)
+    except Exception as e:
+        _log(f"ws_vnc_bridge: bridge error: {e}", "ERROR")
+    finally:
+        try: vnc_sock.close()
+        except Exception: pass
+        _log("ws_vnc_bridge: connection closed")
 
 @app.route("/api/get_resolution")
 @login_required
@@ -1075,7 +1148,7 @@ def _cleanup(*_):
     global _resizer_running
     _resizer_running = False
     print(colored("\n[*] Shutting down...","yellow"))
-    for name in ["chromium","websockify","x11vnc","xvfb"]:
+    for name in ["chromium","x11vnc","xvfb"]:
         _kill_proc(name)
     # Clean up X files on exit too
     _cleanup_x_stale_files()
@@ -1114,9 +1187,9 @@ if __name__ == "__main__":
     print(colored(f"  Architecture : {ARCH_LABEL} ({ARCH or 'UNSUPPORTED'})", "white"))
     print(colored(f"  Chromium     : {CHROME_BIN or 'NOT FOUND'}", "green" if CHROME_BIN else "red"))
     print(colored(f"  Resolution   : {CURRENT_W}x{CURRENT_H} (auto-adjustable)", "green"))
-    print(colored(f"  VNC          : 127.0.0.1:{VNC_PORT}", "green"))
-    print(colored(f"  noVNC        : 0.0.0.0:{NOVNC_PORT} ({NOVNC_ENTRY})", "green"))
-    print(colored(f"  Flask        : 0.0.0.0:{FLASK_PORT}", "green"))
+    print(colored(f"  x11vnc       : 127.0.0.1:{VNC_PORT} (loopback only)", "green"))
+    print(colored(f"  VNC bridge   : served via Flask at /ws (auth-gated, no separate port)", "green"))
+    print(colored(f"  Flask        : 0.0.0.0:{FLASK_PORT} (the only network-exposed port)", "green"))
     print(colored(f"  Container    : {'YES' if IN_CONTAINER else 'No'}", "yellow" if IN_CONTAINER else "white"))
     print(colored(f"  Stack OK     : {'YES ✓' if STACK_OK else 'NO ✗'}", "green" if STACK_OK else "red"))
     print(colored("=" * 60, "cyan"))
